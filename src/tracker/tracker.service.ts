@@ -51,27 +51,34 @@ export class TrackerService {
       const minute = data[8];
       const second = data[9];
       const timestamp = new Date(Date.UTC(year, month, day, hour, minute, second));
-
       const satCount = data[10] & 0x0f;
-
       let latitude = data.readUInt32BE(11) / 30000.0 / 60.0;
       let longitude = data.readUInt32BE(15) / 30000.0 / 60.0;
       const speed = data[19];
-
       const courseStatus = data.readUInt16BE(20);
-      const isLatitudeNorth = (courseStatus & 0x0400) === 0;
-      const isLongitudeWest = (courseStatus & 0x0800) !== 0;
+      const isSouth = (courseStatus & 0x0400) !== 0;
+      const isWest = (courseStatus & 0x0800) !== 0;
 
-      if (!isLatitudeNorth) latitude = -latitude;
-      if (isLongitudeWest) longitude = -longitude;
-
+      if (isSouth) {
+        latitude = -Math.abs(latitude);
+      } else {
+        latitude = Math.abs(latitude);
+      }
+  
+      if (isWest) {
+        longitude = -Math.abs(longitude);
+      } else {
+        longitude = -Math.abs(longitude);
+      }
+      const course = courseStatus & 0x03ff;
+  
       return {
         timestamp,
         satellites: satCount,
         latitude: Number(latitude.toFixed(6)),
         longitude: Number(longitude.toFixed(6)),
         speed,
-        course: courseStatus & 0x03ff,
+        course,
       };
     } catch (err) {
       this.logger.error('Erro ao decodificar pacote GPS', err);
