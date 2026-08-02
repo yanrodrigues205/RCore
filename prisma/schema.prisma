@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  password         String
+  name             String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+  trackingDevices  TrackingDevices[]
+  vehicles         Vehicles[]
+}
+
+model Vehicles{
+  id                 String @id @default(uuid())
+  make               String
+  model              String
+  year               Int
+  color              String
+  vehicleImg         String
+  userId             String
+  trackingDeviceId   String?  @unique
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  deletedAt          DateTime?
+  trackingDevice     TrackingDevices? @relation(fields: [trackingDeviceId], references: [id])
+  user               User            @relation(fields: [userId], references: [id])
+  @@index([userId, trackingDeviceId])
+}
+
+model TrackingDevices{
+  id          String @id @default(uuid())
+  imei        String @unique
+  phone       String
+  blockade    Boolean?
+  model       String
+  protocol    String
+  userId      String
+  instaledAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  user        User    @relation(fields: [userId], references: [id])
+  vehicle     Vehicles?
+  @@index([imei, userId])
+}
+
+model TrackerData{
+  id          String   @id @default(uuid())
+  imei        String
+  lat         Float
+  lng         Float
+  speed       Float
+  course      Float
+  satCount    Float
+  gpsAt       DateTime?
+  createdAt   DateTime @default(now())
+  @@index([imei, gpsAt(sort: Desc)])
+  @@index([createdAt, gpsAt])
+}
+

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as net from 'node:net';
 import { calculateCRC16 } from './util/crc16.util';
+import { TrackerDataService } from 'src/tracker-data/tracker-data.service';
 
 export interface GpsData {
   timestamp: Date;
@@ -11,11 +12,17 @@ export interface GpsData {
   course: number;
 }
 
+interface AuthenticatedSocket extends net.Socket {
+  imei?: string;
+}
+
 @Injectable()
 export class TrackerService {
   private readonly logger = new Logger(TrackerService.name);
 
-  public processPacket(socket: net.Socket, data: Buffer) {
+  constructor(private readonly trackerDataService: TrackerDataService){}
+
+  public async processPacket(socket: AuthenticatedSocket, data: Buffer) {
     if (data.length < 10 || data[0] !== 0x78 || data[1] !== 0x78) {
       this.logger.warn('Pacote não é GT06 válido ou é muito curto.');
       return;
@@ -27,16 +34,34 @@ export class TrackerService {
 
     if (protocol === 0x01) {
       const imei = data.subarray(4, 12).toString('hex');
+      socket.imei = String(imei);
       this.logger.log(`[LOGIN] IMEI: ${imei}`);
       this.sendAck(socket, protocol, serialBuffer);
     } 
     else if (protocol === 0x12) {
+      if(!socket.imei)
+      {
+        this.logger.warn(`[GPS REJEITADO] Pacote 0x12 recebido em socket sem IMEI autenticado.`)
+      }
+
       const parsedGps = this.parseGpsPackage(data);
       if (parsedGps) {
         this.logger.log(
           `📍 [GPS DATA] Lat: ${parsedGps.latitude} | Long: ${parsedGps.longitude} | Vel: ${parsedGps.speed} km/h | Data: ${parsedGps.timestamp.toISOString()}`
         );
  
+        if(socket.imei && socket.imei.length > 0)
+        {
+          await this.trackerDataService.create({
+            imei: socket.imei,
+            lat:parsedGps.latitude,
+            lng: parsedGps.longitude,
+            speed: parsedGps.speed,
+            course: parsedGps.course,
+            satCount: parsedGps.satellites,
+            gpsAt: parsedGps.timestamp
+          })
+        }
       }
       this.sendAck(socket, protocol, serialBuffer);
     }
