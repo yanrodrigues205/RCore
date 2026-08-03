@@ -1,98 +1,51 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Contexto da Aplicação 
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+ 
+ R Core é um serviço para rastreamento veicular, a aplicação utiliza o framework Nest JS para dividir a aplicação em camadas, o banco Postgres foi escolhido pela sua robustes e controle dos dados. ORM escolhido para o gerênciamento dos dados da aplicação é o PRISMA.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+ * Aplicação foi desenvolvida sem utilizar inteligência artificial, justamente para construir algo escalável e duradouro. Não realizar qualquer manutenção ou correção usando IA.
 
-## Description
+ * Repositório deve ser dividido em três ambientes para uma melhor organização, seguindo o respectivo fluxo: developer -> staging -> produção (main), enquanto o projeto for uma POC a alteração do fluxo pode ser alterada.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+ * Qualquer alteração de banco de dados deve ser realizada por meio de uma migration, assim o fluxo ficará dinâmico e aumenta a facilidade na mudança de infraestrutura.
 
-## Project setup
+ * Testes unitários ainda não estão sendo aplicados porém todos os módulos devem incluir seus respectivos arquivos(specs) para implementação futura.
 
-```bash
-$ npm install
-```
+ * A porta da API é a 3000, já a porta do gataway receptor(TCP) dos dados de rastreamento é a 5000.
 
-## Compile and run the project
+ * Toda documentação de integração está disponível no endpoint `/docs`, no mesmo é possível testar toda integração por meio do swagger.
 
-```bash
-# development
-$ npm run start
 
-# watch mode
-$ npm run start:dev
+ ### Documentação dos Módulos da Aplicação
 
-# production mode
-$ npm run start:prod
-```
+| Nomenclatura | Construção | Caminho | Objetivo 
+| :--- | :---: | :---: | :--- |
+| Tracker | WebSocket | `./src/tracker/` | Módulo que disponha de um serviço web socket para que os rastreadores fechem conexão e enviem os dados pelo protocolo GT06. | 
+| Auth | API | `./src/auth/` | Módulo responsável por realizar toda autenticação dentro da API, inclusive o mesmo é responsável pelo "guard", o middleware de autenticação das rotas. |
+| Tracker Data | API | `./src/tracker-data/` | Administrar os dados que são entregues pelo WebSocket no banco de dados, essas informações englobam latitude, longitude, quantidade de satélites próximos, velocidade e etc.. |
+| Tracking Devices | API |`./src/tracking-devices/` | Administrar os dados de identiticação de cada dispositivos, como por exemplo, o modelo do equipamento, o IMEI, Telefone vínculado ao chip do módulo e etc... | 
+| Vehicles | API | `./src/vehicles` | Administrar os dados identificação dos veículos,importante a se destacar é que um usuário pode ter vários veículos(frota), porém cada veículo deve estar vínuculado a apenas um módulo de rastreamento, sem identificação do módulo não deve ser cadastrado. |
 
-## Run tests
 
-```bash
-# unit tests
-$ npm run test
+### Fluxo inicial após clonar o projeto
 
-# e2e tests
-$ npm run test:e2e
+* 1 - Rodar o comando `npm install` para baixar todas dependências do projeto.
 
-# test coverage
-$ npm run test:cov
-```
+* 2 - Configurar o arquivo `.env` com as credenciais de conexão com o banco e a secret de segurança da API, pode gerar a mesma pelo LastPass, se basear no arquivo `.env.example`, FOCO AO REALIZAR A CONFIGURAÇÃO DAS VARIÁVEIS DO BANCO DE DADOS.
 
-## Deployment
+* 3 - Rodar todas as migrations no novo banco de dados conectado pelo comando `npx prisma migrate dev`.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+* 4 - Gerar os arquivos e dependências necessárias para aplicação conversar com o banco de dados por meio do PRISMA `npx prisma generate`.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+* 5 - Realizar o build de todos arquivos para que o ambiente de produção fique pré-configurado, por meio do `npm run build`.
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+* 6 - Rodar a aplicação como ambiente de desenvolvimento, por meio do comando `npm run start:dev`.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-## Resources
+### Criar módulos dentro da aplicação
 
-Check out a few resources that may come in handy when working with NestJS:
+* 1 - Criar o controlador responsável por manipulação dos dados e apontar para o respectivo serviço: `nest g controller NOME_DO_CONTROLLER`.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+* 2 - Criar módulo responsável por administrar conteúdo dos arquivos de service e controller, importar informações e vincular\integrar outros módulos: `nest g module NOME_DO_MÓDULO`.
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+* 3 - Criar serviço responsável pela comunicação direta com banco de dados ou com integração com serviços externos: `nest g service NOME_DO_SERVIÇO`.
