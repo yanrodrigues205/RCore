@@ -10,6 +10,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { TrackerDataController } from './tracker-data/tracker-data.controller';
 import { TrackerDataService } from './tracker-data/tracker-data.service';
 import { TrackerDataModule } from './tracker-data/tracker-data.module';
+import { TrackingDevicesModule } from './tracking-devices/tracking-devices.module';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { TrackerDataModule } from './tracker-data/tracker-data.module';
     ]),
     PrismaModule,
     TrackerModule, 
-    AuthModule, TrackerDataModule,
+    AuthModule, TrackerDataModule, TrackingDevicesModule,
   ],
   controllers: [AppController, TrackerDataController],
   providers: [
