@@ -195,7 +195,13 @@ export class TrackingDevicesService {
                 data:{
                     deletedAt: new Date()
                 }
-            })
+            });
+
+            return {
+                message: "Tracking device deleted successfully.",
+                error: false,
+                statusCode: 201
+            };
 
         }
         catch(error)
@@ -214,7 +220,8 @@ export class TrackingDevicesService {
         {
             const userExists = await this.prisma.user.findUnique({
                 where:{
-                    id: loggedUserId
+                    id: loggedUserId,
+                    deletedAt: null
                 },
                 select: {id:true}
             });
