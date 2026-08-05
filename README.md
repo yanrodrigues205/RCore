@@ -54,3 +54,7 @@
 ### Documentação da API
 <img width="1357" height="651" alt="image" src="https://github.com/user-attachments/assets/ff7b084e-fc6e-4961-8d28-eed37a3bea50" />
 
+### Diagrama do Banco de Dados Atualmente
+<img width="859" height="459" alt="image" src="https://github.com/user-attachments/assets/b005b22f-cf6d-4539-84b2-b9c30b702c89" />
+
+
