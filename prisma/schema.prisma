@@ -24,15 +24,16 @@ model Vehicles{
   model              String
   year               Int
   color              String
-  vehicleImg         String
+  vehicleImg         String?
+  plate              String @unique
   userId             String
-  trackingDeviceId   String?  @unique
+  trackingDeviceId   String  @unique
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   deletedAt          DateTime?
-  trackingDevice     TrackingDevices? @relation(fields: [trackingDeviceId], references: [id])
+  trackingDevice     TrackingDevices @relation(fields: [trackingDeviceId], references: [id])
   user               User            @relation(fields: [userId], references: [id])
-  @@index([userId, trackingDeviceId])
+  @@index([userId, trackingDeviceId, plate])
 }
 
 model TrackingDevices{
