@@ -11,6 +11,8 @@ import { TrackerDataController } from './tracker-data/tracker-data.controller';
 import { TrackerDataService } from './tracker-data/tracker-data.service';
 import { TrackerDataModule } from './tracker-data/tracker-data.module';
 import { TrackingDevicesModule } from './tracking-devices/tracking-devices.module';
+import { VehiclesController } from './vehicles/vehicles.controller';
+import { VehiclesModule } from './vehicles/vehicles.module';
 
 @Module({
   imports: [
@@ -31,9 +33,9 @@ import { TrackingDevicesModule } from './tracking-devices/tracking-devices.modul
     ]),
     PrismaModule,
     TrackerModule, 
-    AuthModule, TrackerDataModule, TrackingDevicesModule,
+    AuthModule, TrackerDataModule, TrackingDevicesModule, VehiclesModule,
   ],
-  controllers: [AppController, TrackerDataController],
+  controllers: [AppController, TrackerDataController, VehiclesController],
   providers: [
     AppService,
     {

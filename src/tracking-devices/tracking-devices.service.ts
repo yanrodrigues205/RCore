@@ -14,7 +14,7 @@ export class TrackingDevicesService {
         try{
             const imeiExists = await this.prisma.trackingDevices.findUnique({
                 where: {
-                    imei: dto.imei
+                    imei: dto.imei,
                 },
                 select: {id:true}
             });
@@ -176,7 +176,8 @@ export class TrackingDevicesService {
 
             const trackingDeviceExists = await this.prisma.trackingDevices.findUnique({
                 where: {
-                    id: trackingDevicesId
+                    id: trackingDevicesId,
+                    deletedAt: null
                 },
                 select: {id:true}
             });
@@ -234,7 +235,8 @@ export class TrackingDevicesService {
 
             const trackingDeviceExists = await this.prisma.trackingDevices.findUnique({
                 where: {
-                    id: trackingDevicesId
+                    id: trackingDevicesId,
+                    deletedAt: null
                 },
             });
 
@@ -256,7 +258,7 @@ export class TrackingDevicesService {
                     updatedAt: trackingDeviceExists.updatedAt
                 },
                 error: false,
-                statusCode: 201
+                statusCode: 200
             };
         }
         catch(error)
@@ -264,8 +266,8 @@ export class TrackingDevicesService {
             if(error instanceof HttpException){
                 throw error;
             }
-            console.error(`error: ${error}`);
-            throw new InternalServerErrorException(``);
+            console.error(`n internal error occurred while deleting the tracking device. Error: ${error}`);
+            throw new InternalServerErrorException(`n internal error occurred while deleting the tracking device.`);
         }
     }
 }
