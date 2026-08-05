@@ -23,11 +23,6 @@ jobs:
           script: |
             cd /var/www/RodriguesCore
             git config --global --add safe.directory /var/www/RodriguesCore
-
             git pull origin main
-
             docker compose up -d --build
-
-            docker compose exec -T app npx prisma migrate deploy
-
             docker image prune -f
