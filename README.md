@@ -49,3 +49,8 @@
 * 2 - Criar módulo responsável por administrar conteúdo dos arquivos de service e controller, importar informações e vincular\integrar outros módulos: `nest g module NOME_DO_MÓDULO`.
 
 * 3 - Criar serviço responsável pela comunicação direta com banco de dados ou com integração com serviços externos: `nest g service NOME_DO_SERVIÇO`.
+
+
+### Documentação da API
+<img width="1357" height="651" alt="image" src="https://github.com/user-attachments/assets/ff7b084e-fc6e-4961-8d28-eed37a3bea50" />
+
