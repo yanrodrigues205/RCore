@@ -21,9 +21,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /opt
-
-            git config --global --add safe.directory /opt
+            cd /var/www/RodriguesCore
+            git config --global --add safe.directory /var/www/RodriguesCore
 
             git pull origin main
 
