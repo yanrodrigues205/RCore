@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTrackerDataDto } from './dto/create-tracker-data.dto';
+import { PaginationDto } from 'src/tracking-devices/dto/tracking-devices.pagination.dto';
 
 @Injectable()
 export class TrackerDataService {
@@ -31,6 +32,12 @@ export class TrackerDataService {
         {
             this.logger.error(`Erro ao salver pacote TCP do IMEI: "${dto.imei}"`, error);
         }
+    }
+
+
+    async getAllByUserId(paginationDto : PaginationDto, loggedUserId : string)
+    {
+        
     }
 
 

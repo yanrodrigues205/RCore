@@ -3,8 +3,8 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/commo
 import { TrackerService } from './tracker.service';
 
 @Injectable()
-export class TcpServer implements OnModuleInit, OnModuleDestroy {
-  private readonly logger = new Logger(TcpServer.name);
+export class TrackerServer implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(TrackerServer.name);
   private server: net.Server;
 
   private readonly host = '0.0.0.0';
