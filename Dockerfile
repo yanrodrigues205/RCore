@@ -18,6 +18,12 @@ WORKDIR /usr/src/app
 
 ENV NODE_ENV=production
 
+ARG API_PORT=3000
+ARG TCP_PORT=5000
+
+ENV API_PORT=${API_PORT}
+ENV TCP_PORT=${TCP_PORT}
+
 COPY package*.json ./
 
 RUN npm ci --only=production
@@ -27,7 +33,7 @@ COPY --from=builder /usr/src/app/prisma ./prisma
 COPY --from=builder /usr/src/app/prisma.config.js ./prisma.config.js
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 
-EXPOSE 3000
-EXPOSE 5000/tcp
+EXPOSE ${API_PORT}
+EXPOSE ${TCP_PORT}/tcp
 
 CMD ["node", "dist/main.js"]

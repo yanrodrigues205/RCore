@@ -35,6 +35,8 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document, {
     customSiteTitle: `R Core API`
   });
-  await app.listen(3000);
+
+  const port = process.env.API_PORT ? Number(process.env.API_PORT) : 3000;
+  await app.listen(port);
 }
 bootstrap();

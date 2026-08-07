@@ -1,6 +1,8 @@
 import * as net from 'node:net';
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { TrackerService } from './tracker.service';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Injectable()
 export class TrackerServer implements OnModuleInit, OnModuleDestroy {
@@ -8,7 +10,7 @@ export class TrackerServer implements OnModuleInit, OnModuleDestroy {
   private server: net.Server;
 
   private readonly host = '0.0.0.0';
-  private readonly port = 5000;
+  private readonly port = process.env.TCP_PORT ? Number(process.env.TCP_PORT) : 5000;
 
   constructor(private readonly trackerService: TrackerService) {}
 
