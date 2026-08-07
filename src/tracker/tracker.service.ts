@@ -81,20 +81,11 @@ export class TrackerService {
       let longitude = data.readUInt32BE(15) / 30000.0 / 60.0;
       const speed = data[19];
       const courseStatus = data.readUInt16BE(20);
-      const isSouth = (courseStatus & 0x0004) !== 0;
-      const isWest = (courseStatus & 0x0008) !== 0;
-
-      if (isSouth) {
-        latitude = -Math.abs(latitude);
-      } else {
-        latitude = Math.abs(latitude);
-      }
-  
-      if (isWest) {
-        longitude = -Math.abs(longitude);
-      } else {
-        longitude = Math.abs(longitude);
-      }
+      const isNorth = (courseStatus & 0x0004) !== 0;
+      const isEast = (courseStatus & 0x0008) !== 0;
+      latitude = isNorth ? Math.abs(latitude) : -Math.abs(latitude);
+      longitude = isEast ? Math.abs(longitude) : -Math.abs(longitude);
+      
       const course = courseStatus & 0x03ff;
   
       return {
