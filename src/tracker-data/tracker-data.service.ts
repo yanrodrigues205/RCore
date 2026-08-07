@@ -32,12 +32,15 @@ export class TrackerDataService {
                 ${dto.gpsAt}, 
                 NOW()
                 WHERE NOT EXISTS (
-                SELECT 1 FROM "TrackerData"
-                WHERE "imei" = ${dto.imei}
-                ORDER BY "gpsAt" DESC
-                LIMIT 1
-                HAVING ROUND("lat"::numeric, 4) = ${latTruncated} 
-                    AND ROUND("lng"::numeric, 4) = ${lngTruncated}
+                SELECT 1 FROM (
+                    SELECT "lat", "lng" 
+                    FROM "TrackerData"
+                    WHERE "imei" = ${dto.imei}
+                    ORDER BY "gpsAt" DESC
+                    LIMIT 1
+                ) AS last_point
+                WHERE ROUND(last_point."lat"::numeric, 4) = ${latTruncated} 
+                    AND ROUND(last_point."lng"::numeric, 4) = ${lngTruncated}
                 );
             `;
 
