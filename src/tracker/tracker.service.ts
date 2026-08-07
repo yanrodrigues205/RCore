@@ -77,14 +77,21 @@ export class TrackerService {
       const second = data[9];
       const timestamp = new Date(Date.UTC(year, month, day, hour, minute, second));
       const satCount = data[10] & 0x0f;
-      let latitude = data.readUInt32BE(11) / 30000.0 / 60.0;
-      let longitude = data.readUInt32BE(15) / 30000.0 / 60.0;
+      let rawLat = data.readUInt32BE(11) / 30000.0 / 60.0;
+      let rawLng = data.readUInt32BE(15) / 30000.0 / 60.0;
       const speed = data[19];
       const courseStatus = data.readUInt16BE(20);
-      const isNorth = (courseStatus & 0x0004) !== 0;
-      const isEast = (courseStatus & 0x0008) !== 0;
-      latitude = isNorth ? Math.abs(latitude) : -Math.abs(latitude);
-      longitude = isEast ? Math.abs(longitude) : -Math.abs(longitude);
+      const isNorth = (courseStatus & 0x04) !== 0;
+      const isEast = (courseStatus & 0x08) !== 0;
+
+      let latitude = isNorth ? Math.abs(rawLat) : -Math.abs(rawLat);
+      let longitude = isEast ? Math.abs(rawLng) : -Math.abs(rawLng);
+      if (longitude > 0 && rawLng >= 30 && rawLng <= 80) {
+        longitude = -Math.abs(longitude);
+      }
+      if (latitude > 0 && rawLat >= 0 && rawLat <= 40) {
+        latitude = -Math.abs(latitude);
+      }
       
       const course = courseStatus & 0x03ff;
   
