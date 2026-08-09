@@ -1,19 +1,16 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTrackerDataDto } from './dto/create-tracker-data.dto';
 import { PaginationDto } from 'src/tracking-devices/dto/tracking-devices.pagination.dto';
 
 @Injectable()
 export class TrackerDataService {
-
     private readonly logger = new Logger(TrackerDataService.name)
     constructor(
         private readonly prisma: PrismaService
     ){}
 
-
-    async create(dto : CreateTrackerDataDto)
-    {
+    async create(dto : CreateTrackerDataDto){
         try
         {
             const latTruncated = Number(dto.lat.toFixed(4));
@@ -36,7 +33,7 @@ export class TrackerDataService {
                     SELECT "lat", "lng" 
                     FROM "TrackerData"
                     WHERE "imei" = ${dto.imei}
-                    ORDER BY "gpsAt" DESC
+                    ORDER BY "cretedAt" DESC
                     LIMIT 1
                 ) AS last_point
                 WHERE ROUND(last_point."lat"::numeric, 4) = ${latTruncated} 
@@ -55,7 +52,6 @@ export class TrackerDataService {
             this.logger.error(`Erro ao salver pacote TCP do IMEI: "${dto.imei}"`, error);
         }
     }
-
 
     async getAllByUserId(paginationDto : PaginationDto, id : string, vehicle : boolean, loggedUserId : string)
     {
@@ -108,7 +104,19 @@ export class TrackerDataService {
             }
             else
             {
+                const trackingDeviceExists = await this.prisma.trackingDevices.findUnique({
+                    where: {
+                        id: id,
+                        deletedAt: null
+                    }
+                });
 
+                if(!trackingDeviceExists || !trackingDeviceExists.imei)
+                {
+                    throw new NotFoundException(`Tracking device '${id}' was not found.`);
+                }
+
+                imei = trackingDeviceExists.imei;     
             }
 
             const totalTrackerData = await this.prisma.trackerData.count({
@@ -117,15 +125,183 @@ export class TrackerDataService {
                 }
             });
 
-            if(totalTrackerData)
+            if(totalTrackerData === 0)
             {
+                return {
+                    data: [],
+                    meta: {
+                        totalItems: totalTrackerData,
+                        page,
+                        limit,
+                        totalPages: 0
+                    }
+                }
+            }
 
+            const getall = await this.prisma.trackerData.findMany({
+                where: {imei},
+                skip: skip,
+                take: limit,
+                select:{
+                    id: true,
+                    imei: true,
+                    lat: true,
+                    lng: true,
+                    speed: true,
+                    course: true,
+                    satCount: true,
+                    createdAt: true
+                },
+                orderBy: {
+                    createdAt: "desc"
+                }
+            });
+
+            const dataBuilder = getall.map((trackerData : any) => {
+                return {
+                    id: trackerData.id,
+                    imei: trackerData.imei,
+                    lat: trackerData.lat,
+                    lng: trackerData.lng,
+                    speed: trackerData.speed,
+                    course: trackerData.course,
+                    sat: trackerData.satCount,
+                    date: trackerData.createdAt
+                }
+            });
+
+            const totalPages = Math.ceil(totalTrackerData / limit);
+            
+            return {
+                data: dataBuilder,
+                meta: {
+                    totalItems: totalTrackerData,
+                    page,
+                    limit,
+                    totalPages
+                }
             }
         }
         catch(error){
-
+            if(error instanceof HttpException){
+                throw error;
+            }
+            console.error(`An error occurred while fetching the tracker data list. Error: ${error}`);
+            throw new InternalServerErrorException(`An error occurred while fetching the tracker data list.`);
         }
     }
 
+    async getlatest(id : string, vehicle : boolean, loggedUserId : string)
+    {
+        try{
+            const userExists = await this.prisma.user.findUnique({
+                where:{
+                    id: loggedUserId,
+                    deletedAt: null
+                },
+                select: {id:true}
+            });
 
+            if(!userExists)
+            {
+                throw new NotFoundException(`User ID '${loggedUserId}' was not found.`);
+            }
+
+            let imei;
+            if(vehicle)
+            {
+                const vehicleExists = await this.prisma.vehicles.findUnique({
+                    where: {
+                        id,
+                        deletedAt: null
+                    }
+                });
+
+                if(!vehicleExists || !vehicleExists.trackingDeviceId)
+                {
+                    throw new NotFoundException(`Vehicle ID '${id}' was not found.`);
+                }
+
+
+                const trackingDeviceExists = await this.prisma.trackingDevices.findUnique({
+                    where: {
+                        id: vehicleExists.trackingDeviceId,
+                        deletedAt: null
+                    }
+                });
+
+                if(!trackingDeviceExists || !trackingDeviceExists.imei)
+                {
+                    throw new NotFoundException(`Tracking device not found for vehicle Id '${id}'.`);
+                }
+
+                imei = trackingDeviceExists.imei;               
+            }
+            else
+            {
+                const trackingDeviceExists = await this.prisma.trackingDevices.findUnique({
+                    where: {
+                        id: id,
+                        deletedAt: null
+                    }
+                });
+
+                if(!trackingDeviceExists || !trackingDeviceExists.imei)
+                {
+                    throw new NotFoundException(`Tracking device '${id}' was not found.`);
+                }
+
+                imei = trackingDeviceExists.imei;     
+            }
+
+
+            const getlatest = await this.prisma.trackerData.findFirst({
+                where: {
+                    imei: imei
+                },
+                orderBy: {
+                    createdAt: "desc"
+                },
+                select: {
+                    id: true,
+                    imei: true,
+                    lat: true,
+                    lng: true,
+                    speed: true,
+                    course: true,
+                    satCount: true,
+                    createdAt: true
+                }
+            });
+
+            if(!getlatest || !getlatest?.lat || !getlatest.lng)
+            {
+                throw new NotFoundException(`Tracker data for IMEI ${imei} was not found.`);
+            }
+
+            return {
+                data: {
+                    id: getlatest.id,
+                    imei: getlatest.imei,
+                    lat: getlatest.lat,
+                    lng: getlatest.lng,
+                    speed: getlatest.speed,
+                    course: getlatest.course,
+                    sat: getlatest.satCount,
+                    date: getlatest.createdAt
+                },
+                error: false,
+                statusCode: 200
+            };
+        }
+        catch(error)
+        {
+            if(error instanceof HttpException)
+            {
+                throw error;
+            }
+            console.error(`An error occurred while fetching the one latest tracker data. Error: ${error}`);
+            throw new InternalServerErrorException(`An error occurred while fetching the one latest tracker data.`);
+        }
+    }
 }
