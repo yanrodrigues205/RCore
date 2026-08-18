@@ -33,7 +33,7 @@ export class TrackerDataService {
                     SELECT "lat", "lng" 
                     FROM "TrackerData"
                     WHERE "imei" = ${dto.imei}
-                    ORDER BY "cretedAt" DESC
+                    ORDER BY "createdAt" DESC
                     LIMIT 1
                 ) AS last_point
                 WHERE ROUND(last_point."lat"::numeric, 4) = ${latTruncated} 
