@@ -1,57 +1,64 @@
-import { HttpException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, Inject, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTrackerDataDto } from './dto/create-tracker-data.dto';
 import { PaginationDto } from 'src/tracking-devices/dto/tracking-devices.pagination.dto';
+import { REDIS_CLIENT } from 'src/redis/redis.module';
+import Redis from 'ioredis';
 
 @Injectable()
 export class TrackerDataService {
     private readonly logger = new Logger(TrackerDataService.name)
     constructor(
         private readonly prisma: PrismaService
+        @Inject(REDIS_CLIENT) private readonly redis: Redis,
     ){}
 
-    async create(dto : CreateTrackerDataDto){
-        try
-        {
-            const latTruncated = Number(dto.lat.toFixed(4));
-            const lngTruncated = Number(dto.lng.toFixed(4));
+    async create(dto: CreateTrackerDataDto) {
+    try {
+      const latTruncated = Number(dto.lat.toFixed(4));
+      const lngTruncated = Number(dto.lng.toFixed(4));
+      const redisKey = `tracker:last:${dto.imei}`;
 
-            const insertedCount = await this.prisma.$executeRaw`
-                INSERT INTO "TrackerData" ("id", "imei", "lat", "lng", "speed", "course", "satCount", "gpsAt", "createdAt")
-                SELECT 
-                gen_random_uuid(), 
-                ${dto.imei}, 
-                ${dto.lat}, 
-                ${dto.lng}, 
-                ${dto.speed}, 
-                ${dto.course}, 
-                ${dto.satCount}, 
-                ${dto.gpsAt}, 
-                NOW()
-                WHERE NOT EXISTS (
-                SELECT 1 FROM (
-                    SELECT "lat", "lng" 
-                    FROM "TrackerData"
-                    WHERE "imei" = ${dto.imei}
-                    ORDER BY "createdAt" DESC
-                    LIMIT 1
-                ) AS last_point
-                WHERE ROUND(last_point."lat"::numeric, 4) = ${latTruncated} 
-                    AND ROUND(last_point."lng"::numeric, 4) = ${lngTruncated}
-                );
-            `;
+      const lastPos = await this.redis.hgetall(redisKey);
 
-            if (insertedCount === 0) {
-                this.logger.debug(`[IGNORADO] Posição duplicada/parada para o IMEI ${dto.imei} (${dto.lat}, ${dto.lng})`);
-            }
+      if (lastPos && lastPos.id) {
+        const lastLat = Number(lastPos.lat);
+        const lastLng = Number(lastPos.lng);
 
-            return insertedCount;
+        if (lastLat === latTruncated && lastLng === lngTruncated) {
+          await this.prisma.trackerData.update({
+            where: { id: lastPos.id },
+            data: {
+              createdAt: new Date(),
+              gpsAt: dto.gpsAt,
+            },
+          });
+          return;
         }
-        catch(error)
-        {
-            this.logger.error(`Erro ao salver pacote TCP do IMEI: "${dto.imei}"`, error);
-        }
+      }
+
+      const newRecord = await this.prisma.trackerData.create({
+        data: {
+          imei: dto.imei,
+          lat: dto.lat,
+          lng: dto.lng,
+          speed: dto.speed,
+          course: dto.course,
+          satCount: dto.satCount,
+          gpsAt: dto.gpsAt,
+        },
+      });
+
+      await this.redis.hmset(redisKey, {
+        id: newRecord.id,
+        lat: latTruncated,
+        lng: lngTruncated,
+      });
+    } catch (error) {
+      this.logger.error(`Erro ao processar pacote do IMEI: "${dto.imei}"`, error);
     }
+  }
+
 
     async getAllByUserId(paginationDto : PaginationDto, id : string, vehicle : boolean, loggedUserId : string)
     {

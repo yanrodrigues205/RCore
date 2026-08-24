@@ -13,6 +13,7 @@ import { TrackerDataModule } from './tracker-data/tracker-data.module';
 import { TrackingDevicesModule } from './tracking-devices/tracking-devices.module';
 import { VehiclesController } from './vehicles/vehicles.controller';
 import { VehiclesModule } from './vehicles/vehicles.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { VehiclesModule } from './vehicles/vehicles.module';
     ]),
     PrismaModule,
     TrackerModule, 
-    AuthModule, TrackerDataModule, TrackingDevicesModule, VehiclesModule,
+    AuthModule, TrackerDataModule, TrackingDevicesModule, VehiclesModule, RedisModule,
   ],
   controllers: [AppController, TrackerDataController, VehiclesController],
   providers: [
