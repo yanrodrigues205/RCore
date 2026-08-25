@@ -14,50 +14,51 @@ export class TrackerDataService {
     ){}
 
     async create(dto: CreateTrackerDataDto) {
-    try {
-      const latTruncated = Number(dto.lat.toFixed(4));
-      const lngTruncated = Number(dto.lng.toFixed(4));
-      const redisKey = `tracker:last:${dto.imei}`;
+        try {
+        const latTruncated = Number(dto.lat.toFixed(4));
+        const lngTruncated = Number(dto.lng.toFixed(4));
+        const redisKey = `tracker:last:${dto.imei}`;
 
-      const lastPos = await this.redis.hgetall(redisKey);
+        const lastPos = await this.redis.hgetall(redisKey);
 
-      if (lastPos && lastPos.id) {
-        const lastLat = Number(lastPos.lat);
-        const lastLng = Number(lastPos.lng);
+        if (lastPos && lastPos.id) {
+            const lastLat = Number(lastPos.lat);
+            const lastLng = Number(lastPos.lng);
 
-        if (lastLat === latTruncated && lastLng === lngTruncated) {
-          await this.prisma.trackerData.update({
-            where: { id: lastPos.id },
-            data: {
-              createdAt: new Date(),
-              gpsAt: dto.gpsAt,
-            },
-          });
-          return;
+            if (lastLat === latTruncated && lastLng === lngTruncated) {
+                const utc_3 = new Date(Date.now() - 3 * 3600 * 1000);
+                await this.prisma.trackerData.update({
+                    where: { id: lastPos.id },
+                    data: {
+                    createdAt: utc_3,
+                    gpsAt: dto.gpsAt,
+                    },
+                });
+                return;
+            }
         }
-      }
 
-      const newRecord = await this.prisma.trackerData.create({
-        data: {
-          imei: dto.imei,
-          lat: dto.lat,
-          lng: dto.lng,
-          speed: dto.speed,
-          course: dto.course,
-          satCount: dto.satCount,
-          gpsAt: dto.gpsAt,
-        },
-      });
+        const newRecord = await this.prisma.trackerData.create({
+            data: {
+            imei: dto.imei,
+            lat: dto.lat,
+            lng: dto.lng,
+            speed: dto.speed,
+            course: dto.course,
+            satCount: dto.satCount,
+            gpsAt: dto.gpsAt,
+            },
+        });
 
-      await this.redis.hmset(redisKey, {
-        id: newRecord.id,
-        lat: latTruncated,
-        lng: lngTruncated,
-      });
-    } catch (error) {
-      this.logger.error(`Erro ao processar pacote do IMEI: "${dto.imei}"`, error);
-    }
-  }
+        await this.redis.hmset(redisKey, {
+            id: newRecord.id,
+            lat: latTruncated,
+            lng: lngTruncated,
+        });
+        } catch (error) {
+        this.logger.error(`Erro ao processar pacote do IMEI: "${dto.imei}"`, error);
+        }
+   }
 
 
     async getAllByUserId(paginationDto : PaginationDto, id : string, vehicle : boolean, loggedUserId : string)
