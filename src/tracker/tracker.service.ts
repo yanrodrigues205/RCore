@@ -75,7 +75,8 @@ export class TrackerService {
       const hour = data[7];
       const minute = data[8];
       const second = data[9];
-      const timestamp = new Date(Date.UTC(year, month, day, hour, minute, second));
+      var timestamp = new Date(Date.UTC(year, month, day, hour, minute, second));
+      timestamp = new Date(timestamp.getTime() - (3 * 60 * 60 * 1000));
       const satCount = data[10] & 0x0f;
       let rawLat = data.readUInt32BE(11) / 30000.0 / 60.0;
       let rawLng = data.readUInt32BE(15) / 30000.0 / 60.0;
