@@ -20,13 +20,14 @@ export class TrackerDataService {
         const redisKey = `tracker:last:${dto.imei}`;
 
         const lastPos = await this.redis.hgetall(redisKey);
+        const utc_3 = new Date(Date.now() - 3 * 3600 * 1000);
 
         if (lastPos && lastPos.id) {
             const lastLat = Number(lastPos.lat);
             const lastLng = Number(lastPos.lng);
 
             if (lastLat === latTruncated && lastLng === lngTruncated) {
-                const utc_3 = new Date(Date.now() - 3 * 3600 * 1000);
+                
                 await this.prisma.trackerData.update({
                     where: { id: lastPos.id },
                     data: {
@@ -40,13 +41,14 @@ export class TrackerDataService {
 
         const newRecord = await this.prisma.trackerData.create({
             data: {
-            imei: dto.imei,
-            lat: dto.lat,
-            lng: dto.lng,
-            speed: dto.speed,
-            course: dto.course,
-            satCount: dto.satCount,
-            gpsAt: dto.gpsAt,
+                imei: dto.imei,
+                lat: dto.lat,
+                lng: dto.lng,
+                speed: dto.speed,
+                course: dto.course,
+                satCount: dto.satCount,
+                gpsAt: dto.gpsAt,
+                cretedAt: utc_3
             },
         });
 

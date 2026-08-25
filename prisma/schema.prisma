@@ -61,8 +61,8 @@ model TrackerData{
   speed       Float
   course      Float
   satCount    Float
-  gpsAt       DateTime?
-  createdAt   DateTime @default(now())
+  gpsAt       DateTime? @db.Timestamp(3)
+  createdAt   DateTime @db.Timestamp(3)
   @@index([imei, gpsAt(sort: Desc)])
   @@index([createdAt, gpsAt])
 }
