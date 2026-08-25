@@ -9,7 +9,7 @@ import Redis from 'ioredis';
 export class TrackerDataService {
     private readonly logger = new Logger(TrackerDataService.name)
     constructor(
-        private readonly prisma: PrismaService
+        private readonly prisma: PrismaService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
     ){}
 
