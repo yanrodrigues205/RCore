@@ -24,6 +24,9 @@ ARG TCP_PORT=5000
 ENV API_PORT=${API_PORT}
 ENV TCP_PORT=${TCP_PORT}
 
+RUN apk add --no-cache tzdata
+ENV TZ=America_Sao_Paulo
+
 COPY package*.json ./
 
 RUN npm ci --only=production
