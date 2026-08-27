@@ -47,7 +47,8 @@ export class TrackerDataService {
                 speed: dto.speed,
                 course: dto.course,
                 satCount: dto.satCount,
-                gpsAt: dto.gpsAt
+                gpsAt: dto.gpsAt,
+                cretedAt: utc_3
             },
         });
 
