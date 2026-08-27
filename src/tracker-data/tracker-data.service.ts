@@ -31,8 +31,9 @@ export class TrackerDataService {
                 await this.prisma.trackerData.update({
                     where: { id: lastPos.id },
                     data: {
-                    createdAt: utc_3,
-                    gpsAt: dto.gpsAt,
+                        createdAt: utc_3,
+                        gpsAt: dto.gpsAt,
+                        speed: 0
                     },
                 });
                 return;
