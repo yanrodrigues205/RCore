@@ -48,7 +48,7 @@ export class TrackerDataService {
                 course: dto.course,
                 satCount: dto.satCount,
                 gpsAt: dto.gpsAt,
-                cretedAt: utc_3
+                createdAt: utc_3
             },
         });
 
