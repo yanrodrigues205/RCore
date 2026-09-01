@@ -64,7 +64,7 @@ export class TrackerDataService {
    }
 
 
-    async getAllByUserId(paginationDto : PaginationDto, id : string, vehicle : boolean, loggedUserId : string)
+    async getAllByUserId(paginationDto : PaginationDto, id : string, vehicle : boolean, loggedUserId : string, date? : string)
     {
         try{
             const { page = 1, limit = 10 } = paginationDto;
@@ -129,11 +129,17 @@ export class TrackerDataService {
 
                 imei = trackingDeviceExists.imei;     
             }
+             
+            const createdAtFilter = this.getDateRange(date);
+            const whereSintax : any = { imei };
+
+            if(createdAtFilter)
+            {
+                whereSintax.createdAt = createdAtFilter;
+            }
 
             const totalTrackerData = await this.prisma.trackerData.count({
-                where: {
-                    imei
-                }
+                where: whereSintax
             });
 
             if(totalTrackerData === 0)
@@ -150,7 +156,7 @@ export class TrackerDataService {
             }
 
             const getall = await this.prisma.trackerData.findMany({
-                where: {imei},
+                where: whereSintax,
                 skip: skip,
                 take: limit,
                 select:{
@@ -314,5 +320,18 @@ export class TrackerDataService {
             console.error(`An error occurred while fetching the one latest tracker data. Error: ${error}`);
             throw new InternalServerErrorException(`An error occurred while fetching the one latest tracker data.`);
         }
+    }
+
+    private getDateRange(dateStr?: string) 
+    {
+        if (!dateStr) return undefined;
+
+        const startDate = new Date(`${dateStr}T00:00:00.000Z`);
+        const endDate = new Date(`${dateStr}T23:59:59.999Z`);
+
+        return {
+            gte: startDate,
+            lte: endDate,
+        };
     }
 }

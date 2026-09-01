@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TrackerDataService } from './tracker-data.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PaginationDto } from 'src/tracking-devices/dto/tracking-devices.pagination.dto';
+import { DateFilterDto } from './dto/date-tracker-data.dto';
 
 @ApiTags("Tracker Data")
 @ApiBearerAuth()
@@ -20,6 +21,7 @@ export class TrackerDataController {
     })
     async getAllByVehicleId(
         @Query() paginationDto : PaginationDto, 
+        @Query() dateDto : DateFilterDto,
         @Param(`vehicleId`) vehicleId : string,
         @Request() req : any
     ){
@@ -37,6 +39,7 @@ export class TrackerDataController {
     })
     async getAllByTrackerDeviceId(
         @Query() paginationDto : PaginationDto, 
+        @Query() dateDto : DateFilterDto,
         @Param(`trackingDeviceId`) trackingDeviceId : string,
         @Request() req : any
     ){
