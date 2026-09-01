@@ -1,9 +1,9 @@
 import { HttpException, Injectable, Inject, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTrackerDataDto } from './dto/create-tracker-data.dto';
-import { PaginationDto } from 'src/tracking-devices/dto/tracking-devices.pagination.dto';
 import { REDIS_CLIENT } from 'src/redis/redis.module';
 import Redis from 'ioredis';
+import { DateFilterPaginationDto } from './dto/date-filter.pagination.dto';
 
 @Injectable()
 export class TrackerDataService {
@@ -64,10 +64,10 @@ export class TrackerDataService {
    }
 
 
-    async getAllByUserId(paginationDto : PaginationDto, id : string, vehicle : boolean, loggedUserId : string, date? : string)
+    async getAllByUserId(paginationDto : DateFilterPaginationDto, id : string, vehicle : boolean, loggedUserId : string)
     {
         try{
-            const { page = 1, limit = 10 } = paginationDto;
+            const { page = 1, limit = 10, date} = paginationDto;
             const skip = (page - 1) * limit;
 
             const userExists = await this.prisma.user.findUnique({

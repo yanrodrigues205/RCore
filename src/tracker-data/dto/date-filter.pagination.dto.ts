@@ -1,7 +1,8 @@
 import { IsOptional, Matches } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { PaginationDto } from 'src/tracking-devices/dto/tracking-devices.pagination.dto';
 
-export class DateFilterDto {
+export class DateFilterPaginationDto extends PaginationDto{
     @ApiPropertyOptional({
         description: 'Date in AAAA-MM-DD format (ex: 2026-10-02).',
         example: '2026-10-02',

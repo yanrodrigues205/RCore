@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TrackerDataService } from './tracker-data.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PaginationDto } from 'src/tracking-devices/dto/tracking-devices.pagination.dto';
-import { DateFilterDto } from './dto/date-tracker-data.dto';
+import { DateFilterPaginationDto } from './dto/';
 
 @ApiTags("Tracker Data")
 @ApiBearerAuth()
@@ -20,13 +20,12 @@ export class TrackerDataController {
         description: `This endpoint is designed to retrieve all data packets received from a device, the search is performed using the vehicle ID.`
     })
     async getAllByVehicleId(
-        @Query() paginationDto : PaginationDto, 
-        @Query() dateDto : DateFilterDto,
+        @Query() dateFilterPaginationDto : DateFilterPaginationDto,
         @Param(`vehicleId`) vehicleId : string,
         @Request() req : any
     ){
         const loggedUserId = req.user.sub;
-        return await this.trackerDataService.getAllByUserId(paginationDto, vehicleId, true, loggedUserId);
+        return await this.trackerDataService.getAllByUserId(dateFilterPaginationDto, vehicleId, true, loggedUserId);
     }
 
 
@@ -38,13 +37,12 @@ export class TrackerDataController {
         description: `This endpoint is designed to retrieve all data packets received from a device, the search is performed using the tracking device ID.`
     })
     async getAllByTrackerDeviceId(
-        @Query() paginationDto : PaginationDto, 
-        @Query() dateDto : DateFilterDto,
+        @Query() dateFilterPaginationDto : DateFilterPaginationDto,
         @Param(`trackingDeviceId`) trackingDeviceId : string,
         @Request() req : any
     ){
         const loggedUserId = req.user.sub;
-        return await this.trackerDataService.getAllByUserId(paginationDto, trackingDeviceId, false, loggedUserId);
+        return await this.trackerDataService.getAllByUserId(dateFilterPaginationDto, trackingDeviceId, false, loggedUserId);
     }
 
     @Get('getLatestbyVehicleId/:vehicleId')
