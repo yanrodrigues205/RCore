@@ -69,6 +69,7 @@ export class TrackerDataService {
         try{
             const page = Number(paginationDto.page) || 1;
             const limit = Number(paginationDto.limit) || 10;
+            const skip = (page - 1) * limit;
             const { date } = paginationDto;
 
             const userExists = await this.prisma.user.findUnique({

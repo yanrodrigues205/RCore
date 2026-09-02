@@ -1,8 +1,8 @@
 import { IsOptional, Matches } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
 import { PaginationDto } from 'src/tracking-devices/dto/tracking-devices.pagination.dto';
 
-export class DateFilterPaginationDto extends PaginationDto{
+export class DateFilterPaginationDto{
     @ApiPropertyOptional({
         description: 'Date in YYYY-MM-DD format (ex: 2026-10-02).',
         example: '2026-10-02',
@@ -13,3 +13,5 @@ export class DateFilterPaginationDto extends PaginationDto{
     })
     date?: string;
 }
+
+export class DateFilterPaginationDto extends IntersectionType(PaginationDto, DateFilterPaginationDto) {}
