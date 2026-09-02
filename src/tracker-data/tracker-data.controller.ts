@@ -2,8 +2,7 @@ import { Controller, HttpStatus, Post, Get, Delete, Query, Param, HttpCode, UseG
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TrackerDataService } from './tracker-data.service';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { PaginationDto } from 'src/tracking-devices/dto/tracking-devices.pagination.dto';
-import { DateFilterPaginationDto } from './dto/';
+import { DateFilterPaginationDto } from './dto/date-filter.pagination.dto';
 
 @ApiTags("Tracker Data")
 @ApiBearerAuth()

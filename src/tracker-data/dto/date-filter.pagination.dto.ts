@@ -4,7 +4,7 @@ import { PaginationDto } from 'src/tracking-devices/dto/tracking-devices.paginat
 
 export class DateFilterPaginationDto extends PaginationDto{
     @ApiPropertyOptional({
-        description: 'Date in AAAA-MM-DD format (ex: 2026-10-02).',
+        description: 'Date in YYYY-MM-DD format (ex: 2026-10-02).',
         example: '2026-10-02',
     })
     @IsOptional()
