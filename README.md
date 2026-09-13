@@ -1,6 +1,6 @@
 # Contexto da Aplicação 
 
- 
+  
  R Core é um serviço para rastreamento veicular, a aplicação utiliza o framework Nest JS para dividir a aplicação em camadas, o banco Postgres foi escolhido pela sua robustes e controle dos dados. ORM escolhido para o gerênciamento dos dados da aplicação é o PRISMA.
 
  * Aplicação foi desenvolvida sem utilizar inteligência artificial, justamente para construir algo escalável e duradouro. Não realizar qualquer manutenção ou correção usando IA.
