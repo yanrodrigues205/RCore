@@ -22,7 +22,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /var/www/RCore
-            git config --global --add safe.directory /var/www/RodriguesCore
+            git config --global --add safe.directory /var/www/RCore
             git pull origin main
             docker compose up -d --build
             docker image prune -f
