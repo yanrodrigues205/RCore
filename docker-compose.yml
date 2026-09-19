@@ -83,7 +83,7 @@ services:
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
       - N8N_SECURE_COOKIE=false
-      - WEBHOOK_URL=http://http://vps71034.publiccloud.com.br:5678/
+      - WEBHOOK_URL=http://vps71034.publiccloud.com.br:5678/
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
       - DB_POSTGRESDB_PORT=5432
