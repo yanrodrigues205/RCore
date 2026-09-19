@@ -29,6 +29,8 @@ services:
         condition: service_healthy
     command: >
       sh -c "DATABASE_URL='${DATABASE_URL}' npx prisma migrate deploy && node dist/main.js"
+    networks:
+      - rede_geral
 
   postgres:
     image: postgres:15-alpine
@@ -50,6 +52,8 @@ services:
       interval: 3s
       timeout: 3s
       retries: 10
+    networks:
+      - rede_geral
   
   redis:
     image: redis:7-alpine
@@ -64,7 +68,112 @@ services:
       interval: 3s
       timeout: 3s
       retries: 10
+    networks:
+      - rede_geral
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_ENCRYPTION_KEY=WMIBMFsmhsa24g7P5YhN46dH4
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB:-n8n}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER:-postgres}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - TZ=America/Sao_Paulo
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - rede_geral
+
+  evolution_v2:
+    image: evoapicloud/evolution-api:2.4.0-rc2
+    container_name: evolution_v2
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_URL=http://localhost:8080
+      - DOCKER_ENV=true
+      - AUTHENTICATION_TYPE=apikey
+      - AUTHENTICATION_API_KEY=KFZOm3Hc3GSNWwHBywEm67xYgjN8xGTH
+      - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
+      - LANGUAGE=pt-BR
+      - TZ=America/Sao_Paulo
+      - DATABASE_ENABLED=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/evolution
+      - DATABASE_CONNECTION_CLIENT_NAME=evolution
+      - DATABASE_SAVE_DATA_INSTANCE=true
+      - DATABASE_SAVE_DATA_NEW_MESSAGE=true
+      - DATABASE_SAVE_MESSAGE_UPDATE=true
+      - DATABASE_SAVE_DATA_CONTACTS=true
+      - DATABASE_SAVE_DATA_CHATS=true
+      - CACHE_REDIS_ENABLED=true
+      - CACHE_REDIS_URI=redis://redis:6379/2
+      - CACHE_REDIS_PREFIX_KEY=evolution
+      - CACHE_REDIS_SAVE_INSTANCES=false
+      - CACHE_LOCAL_ENABLED=false
+      - CONFIG_SESSION_PHONE_CLIENT=BOTV1
+      - CONFIG_SESSION_PHONE_NAME=chrome
+      - CONFIG_SESSION_PHONE_VERSION=2.3000.1020885143
+      - QRCODE_LIMIT=1902
+      - QRCODE_COLOR=#000000
+      - N8N_ENABLED=true
+      - TYPEBOT_ENABLED=true
+      - TYPEBOT_API_VERSION=latest
+      - RABBITMQ_ENABLED=false
+      - S3_ENABLED=false
+      - OPENAI_ENABLED=false
+      - CHATWOOT_ENABLED=false
+      - DIFY_ENABLED=false
+      - WEBHOOK_GLOBAL_ENABLED=false
+      - WEBHOOK_EVENTS_APPLICATION_STARTUP=true
+      - WEBHOOK_EVENTS_QRCODE_UPDATED=true
+      - WEBHOOK_EVENTS_MESSAGES_SET=true
+      - WEBHOOK_EVENTS_MESSAGES_UPSERT=true
+      - WEBHOOK_EVENTS_MESSAGES_UPDATE=true
+      - WEBHOOK_EVENTS_MESSAGES_DELETE=true
+      - WEBHOOK_EVENTS_SEND_MESSAGE=true
+      - WEBHOOK_EVENTS_CONTACTS_SET=true
+      - WEBHOOK_EVENTS_CONTACTS_UPSERT=true
+      - WEBHOOK_EVENTS_CONTACTS_UPDATE=true
+      - WEBHOOK_EVENTS_PRESENCE_UPDATE=true
+      - WEBHOOK_EVENTS_CHATS_SET=true
+      - WEBHOOK_EVENTS_CHATS_UPSERT=true
+      - WEBHOOK_EVENTS_CHATS_UPDATE=true
+      - WEBHOOK_EVENTS_CHATS_DELETE=true
+      - WEBHOOK_EVENTS_GROUPS_UPSERT=true
+      - WEBHOOK_EVENTS_GROUPS_UPDATE=true
+      - WEBHOOK_EVENTS_GROUP_PARTICIPANTS_UPDATE=true
+      - WEBHOOK_EVENTS_CONNECTION_UPDATE=true
+      - WEBHOOK_EVENTS_CALL=true
+    volumes:
+      - evolution_instancesv2:/evolution/instances
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - rede_geral
+
+networks:
+  rede_geral:
+    driver: bridge
 
 volumes:
   postgres_data:
   redis_data:
+  evolution_instancesv2:
