@@ -57,4 +57,16 @@
 ### Diagrama do Banco de Dados Atualmente
 <img width="859" height="459" alt="image" src="https://github.com/user-attachments/assets/b005b22f-cf6d-4539-84b2-b9c30b702c89" />
 
+## Consumidores da API Restful
+
+### Automação de Whastapp com Agente de IA para Respostas:
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/f4c03012-3556-490c-891b-b0f1c601c023" />
+
+### Aplicação Multiplataforma(IOS, Android e Web):
+<img width="1470" height="924" alt="image" src="https://github.com/user-attachments/assets/376d88fc-847b-4b88-9d5c-d99900b833cc" />
+<img width="1468" height="924" alt="image" src="https://github.com/user-attachments/assets/8303ee2b-fc4b-4b20-bfc2-7882935c3586" />
+
+
+
+
 
