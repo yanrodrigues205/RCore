@@ -64,6 +64,7 @@
 
 ### Aplicação Multiplataforma(IOS, Android e Web):
 <img width="397" height="788" alt="Captura de Tela 2026-09-24 às 07 22 35" src="https://github.com/user-attachments/assets/6eb626fd-d849-4424-b129-d8afe0215fc9" />
+<img width="397" height="798" alt="image" src="https://github.com/user-attachments/assets/a296f033-c372-4118-9bea-a5297706d403" />
 
 <img width="1470" height="924" alt="image" src="https://github.com/user-attachments/assets/376d88fc-847b-4b88-9d5c-d99900b833cc" />
 <img width="1468" height="924" alt="image" src="https://github.com/user-attachments/assets/8303ee2b-fc4b-4b20-bfc2-7882935c3586" />
